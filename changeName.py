@@ -14,7 +14,7 @@ class XmlDate:
         doc = minidom.parse(x_file)
         root = doc.documentElement
     
-        code_nodes = root.getElementsByTagName('subproduct')   # 获取product节点列表
+        code_nodes = root.getElementsByTagName('subproduct')   # 获取subproduct节点列表
         for node in code_nodes:
             tradeName = node.getAttribute('subsymbol')    # subsymbol="cu"
             
@@ -35,11 +35,10 @@ class XmlDate:
         return mid_name 
             
     def getMarketId(self,xml_node):
-        one_fa = xml_node.parentNode
-        two_fa = one_fa.parentNode
+        products_node = xml_node.parentNode  #  获取父节点
+        market_node = products_node.parentNode  # 获取 market 节点
         
-        
-        marketId = two_fa.getAttribute('marketId')
+        marketId = market_node.getAttribute('marketId')
         print marketId
         return marketId
         
@@ -69,11 +68,11 @@ def formatName(filename):
     e_name = namelist[0][-4:]
     try:    
         codename = codedic[c_name]
-        newname = k_name+codename+e_name+'.csv'
+        newname = k_name + codename + e_name + '.csv'
         print newname
         return newname
     except:
-        print "%s is too old! "
+        print "%s is too old! " % filename
         return 
     
 
