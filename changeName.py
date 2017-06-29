@@ -14,28 +14,32 @@ class XmlDate:
         doc = minidom.parse(x_file)
         root = doc.documentElement
     
-        code_nodes = root.getElementsByTagName('product')   # 获取product节点列表
+        code_nodes = root.getElementsByTagName('subproduct')   # 获取product节点列表
         for node in code_nodes:
-            tradeName = node.getAttribute('tradeName')    # tradeName="cu1609"
+            tradeName = node.getAttribute('subsymbol')    # subsymbol="cu"
             
-            productId = node.getAttribute('productId')    # productId="001609"
+            productId = node.getAttribute('id')    # id="0"
             marketId = self.getMarketId(node)
-            fullname = self.getfullname(productId,marketId)  # 返回'1-1609'
-            self.namedict[fullname] = tradeName
+            mid_name = self.getfullname(productId,marketId)  # 返回'1-x
+            self.namedict[mid_name] = tradeName
         print self.namedict
     
     def getfullname(self,productId,marketId):
         int_prod = int(productId)
         str_prod = str(int_prod)
-        fullname = marketId + "-" + str_prod
-        return fullname 
+        if str_prod == "0":
+            mid_name = marketId + "-" 
+        else:
+            mid_name = marketId + "-" + str_prod
+        print mid_name
+        return mid_name 
             
     def getMarketId(self,xml_node):
         one_fa = xml_node.parentNode
         two_fa = one_fa.parentNode
-        thr_fa = two_fa.parentNode
-        for_fa = thr_fa.parentNode
-        marketId = for_fa.getAttribute('marketId')
+        
+        
+        marketId = two_fa.getAttribute('marketId')
         print marketId
         return marketId
         
@@ -55,15 +59,17 @@ def main(f_path):
                         print "%s copy to %s CSV file sucessfull." % (csv_file, new_csv)
                 else:
                     print "%s is not a CSV file."%csv_file 
+    
 
 def formatName(filename):
     # 1min-1-99999.csv,  5min-1-99999.csv,  1day-1-99999.csv
     namelist = filename.split('.')
     k_name = namelist[0][:5]
-    c_name = namelist[0][5:]
+    c_name = namelist[0][5:-4]
+    e_name = namelist[0][-4:]
     try:    
         codename = codedic[c_name]
-        newname = k_name+codename+'.csv'
+        newname = k_name+codename+e_name+'.csv'
         print newname
         return newname
     except:
@@ -79,4 +85,5 @@ if __name__ == "__main__":
     codedic = x.namedict
 
     main(filePath)
+    print "The End!"
 
