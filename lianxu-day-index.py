@@ -71,50 +71,76 @@ class CodeData:
     
     def getadd2(self,key):
         # 以下标找到隔两个月的合约
+        print key
         code_index = self.codelist.index(key)
         add2 = self.codelist[code_index+2]
         return add2
+    
+    def add2close(self,add2key,datestr):
+        if add2key in self.codelist:
+            add2data = self.codedict[add2key]
+            close_flag = False
+            for i in add2data:
+                if datestr == i[0]:
+                    close = i[5]
+                    close_flag = True
+                    break
+#                     print l_date,l_open,l_high,l_close,two_close
+            if close_flag:
+                print "add2close find."
+                return close
+    
+    def getsseclose(self,datestr):
+        for sse in self.sseList:
+                
+            if datestr == sse[0]:
+                s_close = sse[2]
+                break
+            else:
+                s_close = 0
+        return s_close
+    
+    def getadd2key(self,lx_date,lx_open,lx_high):
+        # 连续日期，开，高，close
+        
+        for key in self.codedict.keys():
+            break_flag = False
+#             print key
+            for c_data in self.codedict[key]:
+#                     print c_data
+                if lx_date == c_data[0] and lx_open==c_data[2] and lx_high==c_data[3]:
+                        # 找到主力合约隔两个月的合约
+                    keyadd2 = self.getadd2(key)
+                    
+#                         print keyadd2,type(keyadd2)
+                    break_flag = True
+                    break
+            if break_flag:
+                print "%s find add2key, break!" % keyadd2
+                return keyadd2,key
     
     def findData(self):
         lianxu = self.readfile(self.lxFile)
         print lianxu
         for l in lianxu:
-            # 连续日期，开，高，close
             l_date,l_open,l_high,l_close = l[0], l[2], l[3], l[5]
-            for key in self.codedict.keys():
-#                 print key
-                for c_data in self.codedict[key]:
-#                     print c_data
-                    if l_date == c_data[0] and l_open==c_data[2] and l_high==c_data[3]:
-                        # 找到主力合约隔两个月的合约
-                        keyadd2 = self.getadd2(key)
-#                         print keyadd2,type(keyadd2)
-                        break
+            # 连续日期，开，高，close
+            keyadd2,lianxukey = self.getadd2key(l_date,l_open,l_high)
             
             # 隔两月close
-            if keyadd2:
-                for i in self.codedict[keyadd2]:
-                    if l_date == i[0]:
-                        two_close = c_data[3]
-#                     print l_date,l_open,l_high,l_close,two_close
-                        break
+            two_close = self.add2close(keyadd2,l_date)
             
             # sse300close
-            for sse in self.sseList:
-                
-                if l_date == sse[0]:
-                    s_close = sse[2]
-                    break
-                else:
-                    s_close = 0
+            s_close = self.getsseclose(l_date)
+            
             print l_date,l_open,l_high,l_close,keyadd2,two_close,s_close     
-            self.lxData.append((l_date,l_close,two_close,s_close))
+            self.lxData.append((l_date,l_close,two_close,s_close,lianxukey,keyadd2))
 
     def writerfile(self,outfile):
         # 写入文件
         out = open(outfile, 'wb')
         csv_writer = csv.writer(out)
-        csv_writer.writerow(['date','lxclose','lx+2close','sse300close'])
+        csv_writer.writerow(['date','lxclose','lx+2close','sse300close','lianxucode','lxadd2code'])
         csv_writer.writerows(self.lxData)
         out.close()
         print 'writer ok'
