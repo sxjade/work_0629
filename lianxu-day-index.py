@@ -43,10 +43,11 @@ class CodeData:
         
     def getsseData(self):
         # 将收盘价存入self。sseList列表
-        ssedata = self.readfile(self.sseFile)
-        for ss in ssedata:
-            if ss[1]=='15:00':
-                self.sseList.append(ss)
+        self.sseList = self.readfile(self.sseFile)
+#         ssedata = self.readfile(self.sseFile)
+#         for ss in ssedata:
+#             if ss[1]=='15:00':
+#                 self.sseList.append(ss)
         
     def codefile(self):
     # 生成合约名列表['1607', '1608', '1609', '1610', '1611', '1612', '1701', '1702', '1703', '1704', '1705', '1706', '1707', '1708', '1709', '1712']
@@ -91,14 +92,17 @@ class CodeData:
                 return close
     
     def getsseclose(self,datestr):
+        sse_flag = False
         for sse in self.sseList:
-                
+#             print sse
             if datestr == sse[0]:
-                s_close = sse[2]
+                sse_flag = True
+                s_close = sse[1]
                 break
-            else:
-                s_close = 0
-        return s_close
+        if sse_flag:
+            return s_close
+            
+        
     
     def getadd2key(self,lx_date,lx_open,lx_high):
         # 连续日期，开，高，close
@@ -134,13 +138,13 @@ class CodeData:
             s_close = self.getsseclose(l_date)
             
             print l_date,l_open,l_high,l_close,keyadd2,two_close,s_close     
-            self.lxData.append((l_date,l_close,two_close,s_close,lianxukey,keyadd2))
+            self.lxData.append((l_date,l_close,two_close,s_close))
 
     def writerfile(self,outfile):
         # 写入文件
         out = open(outfile, 'wb')
         csv_writer = csv.writer(out)
-        csv_writer.writerow(['date','lxclose','lx+2close','sse300close','lianxucode','lxadd2code'])
+        csv_writer.writerow(['date','lxclose','lx+2close','sse300close'])
         csv_writer.writerows(self.lxData)
         out.close()
         print 'writer ok'

@@ -131,3 +131,6 @@ if __name__ == "__main__":
         xmlDomObject = xml.dom.minidom.parseString(xmlStr)
         f.write(xmlDomObject.toprettyxml(indent = '\t', newl = '\n', encoding = 'UTF-8'))
     f.close
+    
+    
+    

@@ -77,7 +77,7 @@ def formatName(filename):
     
 
 if __name__ == "__main__":
-    filePath = "D:\\ATS_SXY\\codetable\\date\\20170629\\kline\\"
+    filePath = "D:\\ATS_SXY\\codetable\\date\\20170807\\"
     xmlfile = "D:\ATS_SXY\codetable\Ccodetable.XML"
     x = XmlDate()
     x.readxml(xmlfile)

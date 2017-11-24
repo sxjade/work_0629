@@ -48,7 +48,7 @@ class Config:
         self.conf.read(configfile)
 
     def getsrcdir(self):
-        srcdir = self.conf.get('src','srcdir') 
+        srcdir = self.conf.get('src','srcdir')    # 获取字符串
         return srcdir
     
     def getproduct(self):
@@ -60,11 +60,11 @@ class Config:
         return codetable
     
     def getnight(self):
-        night = self.conf.getboolean('src', 'night')
+        night = self.conf.getboolean('src', 'night')   # 获取布尔值
         return night
     
     def getdot(self):
-        dot = self.conf.getint('src', 'dot')
+        dot = self.conf.getint('src', 'dot')    # 获取int值
         return dot
 
     def getdst(self):
