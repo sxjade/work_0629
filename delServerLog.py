@@ -6,6 +6,9 @@ import os
 import re
 import datetime
 
+
+
+
 class LogDate:
     def __init__(self,serverlogdir):
         self.txtLogName = ''
@@ -26,6 +29,7 @@ class LogDate:
         return self.log4jLogName
     
     def handleLog(self):
+    	  # ±È¿˙¡–±Ì
         print self.logDir
         for path in self.logDir:
             if os.path.isdir(path):
