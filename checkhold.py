@@ -2,10 +2,19 @@
 '''
 @author: liuyang
 '''
+import sys
 import ConfigParser
 import os
 import re
 import time
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                datefmt='%a, %d %b %Y %H:%M:%S',
+                filename='checkhold.log',
+                filemode='a+')
+
 
 class Myconf(ConfigParser.ConfigParser):  
     def __init__(self,defaults=None):  
@@ -15,16 +24,24 @@ class Myconf(ConfigParser.ConfigParser):
 
 class Conf:
     def __init__(self,ini_file):
-        self.ini_f = open(ini_file)
+        self.inier = ini_file
         self.config=Myconf()
-        self.config.readfp(self.ini_f)
+        try:
+            self.ini_f = open(ini_file)
+            self.config.readfp(self.ini_f)
+        except:
+            sys.exit(1)
         
     def get_str_para(self,section,parameter):
         str_para = self.config.get(section,parameter)
         return str_para
     
     def get_int_para(self,section,parameter):
+        
         int_para = self.config.getint(section,parameter)
+        if parameter == "DAY_LOTS" and int_para <> 1:
+            print "warning: %s : DAY_LOTS is : %d" % (self.inier,int_para)
+            logging.warning("%s : DAY_LOTS is : %d" % (self.inier,int_para))
         return int_para
         
     def get_float_para(self,section,parameter):
@@ -52,8 +69,14 @@ class Product_Hold:
         
         self.buy_hold = 0
         self.sell_hold = 0
-        
     
+    def get_product(self):
+        return self.product
+        
+    def get_file(self):
+        (filepath,filename) = os.path.split(self.filer)
+        return filename
+        pass
        
     def get_hold(self):
         if self.strategy == "JUNIC1" or self.strategy == "JUNIC2":
@@ -146,6 +169,8 @@ class Product_Hold:
         return self.filer
 
 
+
+
 def read_dir(dirs):
     real_list = []
     real_dict = {}
@@ -159,7 +184,12 @@ def read_dir(dirs):
 #     print real_list
     for i in real_list:
         filename_list = i.split("_")
-        (prod,stra) = filename_list[-3],filename_list[-1]
+        if filename_list[-2] == "BAK":
+            pd_str = filename_list[1]
+            (prod,stra) = pd_str[-2:]+"_BAK",filename_list[-1]
+            
+        else:
+            (prod,stra) = filename_list[-3],filename_list[-1]
         
 #         print prod,stra
         product = Product_Hold(i,prod,stra)
@@ -173,15 +203,38 @@ def read_dir(dirs):
 #     print real_dict
     return real_dict
 
-
+def holdOrNo(prod_list):
+    hold_list = []
+    nohold_list = []
+    prod = ""
+    hold_str = ''
+    
+    if len(prod_list) > 0:
+         for i in prod_list:
+             file_str = i.get_file()
+             prod = i.get_product()
+             buy = i.get_buy()
+             sell = i.get_sell()
+             
+             if buy == 0 and sell == 0:
+                 nohold_list.append(file_str)
+             else:
+                hold_list.append(file_str)
+                hold_str = hold_str + "\n" + file_str + ": " + " buy= " + str(buy) + " sell= " + str(sell)
+    
+    
+    logging.info("%s no hold is %s " % (prod,nohold_list))
+    logging.info("%s hold is :  %s \n" % (prod,hold_str))
                 
 
 def statistics(st_dir):
     dicts = read_dir(st_dir)
     sum_dict = {}
+    
     for key in dicts:
 #         print key
         if len(dicts[key]) > 0:
+            holdOrNo(dicts[key])
 #             print len(dicts[key])
             for i in dicts[key]:
                 buy = i.get_buy()
@@ -197,17 +250,26 @@ def statistics(st_dir):
                 else:
 #                     print sum_dict
                     sum_dict.update({key:{"buy":buy,"sell":sell}})
-    print " %s hold is :\n" % st_dir               
-    print sum_dict
+    print "\n %s hold is : " % st_dir     
+    for v,k in sum_dict.items():
+        print('{v}:{k}'.format(v = v, k = k))
+        logging.info('{v}:{k}'.format(v = v, k = k))          
+#     print sum_dict
     
-def main(dir1,dir2):
-    statistics(dir1)
-    statistics(dir2)
+def main(hold_dirs):
+    if len(hold_dirs) > 0:
+        for i in hold_dirs:
+            statistics(i)
+    
+    
 
 
 if __name__ == "__main__":
-    dir_60 = "C:\\Users\\admin\\Desktop\\BI_UNICORE_15208260\\users\\ATSJY\\"
-    dir_79 = "C:\\Users\\admin\\Desktop\\BI_UNICORE_15208279\\users\\ATSJY\\"
-    main(dir_60,dir_79)
+    
+    dirs_test = ["d:\\workspace\\work\\ATSJY\\"]
+    dirs = ["C:\\Users\\admin\\Desktop\\BI_UNICORE_15208279\\users\\ATSJY\\",
+            "C:\\Users\\admin\\Desktop\\5208260-ag-al-hc-i-ni\\users\\ATSJY\\",
+            "C:\\Users\\admin\\Desktop\\5208260-rb-ru-v-zn\\users\\ATSJY\\"]
+    main(dirs_test)
     
 
