@@ -187,7 +187,7 @@ def read_dir(dirs):
         if filename_list[-2] == "BAK":
             pd_str = filename_list[1]
             (prod,stra) = pd_str[-2:]+"_BAK",filename_list[-1]
-            
+            (prod,stra) = filename_list[0],filename_list[-1]
         else:
             (prod,stra) = filename_list[-3],filename_list[-1]
         
@@ -210,15 +210,15 @@ def holdOrNo(prod_list):
     hold_str = ''
     
     if len(prod_list) > 0:
-         for i in prod_list:
-             file_str = i.get_file()
-             prod = i.get_product()
-             buy = i.get_buy()
-             sell = i.get_sell()
+        for i in prod_list:
+            file_str = i.get_file()
+            prod = i.get_product()
+            buy = i.get_buy()
+            sell = i.get_sell()
              
-             if buy == 0 and sell == 0:
-                 nohold_list.append(file_str)
-             else:
+            if buy == 0 and sell == 0:
+                nohold_list.append(file_str)
+            else:
                 hold_list.append(file_str)
                 hold_str = hold_str + "\n" + file_str + ": " + " buy= " + str(buy) + " sell= " + str(sell)
     
